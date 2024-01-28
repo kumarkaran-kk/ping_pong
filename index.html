@@ -1,254 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Pong wars | Karan Kumar</title>
     <link rel="canonical" href="https://pong-wars-kk.netlify.app/" />
     <style>
-      html {
-        height: 100%;
-      }
+        html {
+            height: 100%;
+        }
 
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(to bottom, #172b36 0%, #d9e8e3 100%);
-      }
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, #172b36 0%, #d9e8e3 100%);
+        }
 
-      #container {
-        display: flex;
-        width: min(100%, 70vh);
-        max-width: 600px;
-        align-items: center;
-        flex-direction: column;
-        height: 100%;
-      }
+        #container {
+            display: flex;
+            width: min(100%, 70vh);
+            max-width: 600px;
+            align-items: center;
+            flex-direction: column;
+            height: 100%;
+        }
 
-      #pongCanvas {
-        display: block;
-        border-radius: 4px;
-        overflow: hidden;
-        width: 100%;
-        margin-top: auto;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-      }
+        #pongCanvas {
+            display: block;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 100%;
+            margin-top: auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
 
-      #score {
-        font-family: monospace;
-        margin-top: 30px;
-        font-size: 20px;
-        padding-left: 20px;
-        color: #172b36;
-      }
+        #score {
+            font-family: monospace;
+            margin-top: 30px;
+            font-size: 20px;
+            padding-left: 20px;
+            color: #172b36;
+        }
 
-      #made {
-        font-family: monospace;
-        margin-top: auto;
-        margin-bottom: 20px;
-        font-size: 14px;
-        padding-left: 20px;
-      }
+        #made {
+            font-family: monospace;
+            margin-top: auto;
+            margin-bottom: 20px;
+            font-size: 14px;
+            padding-left: 20px;
+        }
 
-      #made a {
-        color: #172b36;
-      }
+        #made a {
+            color: #172b36;
+        }
 
-      #startMessage {
-        font-family: monospace;
-        font-size: 16px;
-        margin-top: 10px;
-        color: #172b36;
-      }
+        #startMessage {
+            font-family: monospace;
+            font-size: 16px;
+            margin-top: 10px;
+            color: #172b36;
+        }
     </style>
-  </head>
+</head>
 
-  <body>
-        <div id="container">
-      <canvas id="pongCanvas" width="800" height="800"></canvas>
-      <div id="score"></div>
-      <h2 id="startMessage" style="display: block;">Click around me</h2>
-      <p id="made">
-        made by <a href="https://karankr.netlify.app/">Karan Kumar</a> | source on
-        <a href="https://github.com/kumarkaran-kk/ping_pong">github</a>
-      </p>
+<body>
+    <div id="container">
+        <canvas id="pongCanvas" width="800" height="800"></canvas>
+        <div id="score"></div>
+        <h2 id="startMessage" style="display: block;">Click around me</h2>
+        <p id="made">
+            made by <a href="https://karankr.netlify.app/">Karan Kumar</a> | source on
+            <a href="https://github.com/kumarkaran-kk/ping_pong">github</a>
+        </p>
     </div>
-    
 
-            <script>
-      const colorPalette = {
-        ArcticPowder: "#F1F6F4",
-        MysticMint: "#D9E8E3",
-        Forsythia: "#FFC801",
-        DeepSaffron: "#FF9932",
-        NocturnalExpedition: "#114C5A",
-        OceanicNoir: "#172B36",
-      };
 
-      const canvas = document.getElementById("pongCanvas");
-      const ctx = canvas.getContext("2d");
-      const scoreElement = document.getElementById("score");
+    <script>
+        const colorPalette = {
+            ArcticPowder: "#F1F6F4",
+            MysticMint: "#D9E8E3",
+            Forsythia: "#FFC801",
+            DeepSaffron: "#FF9932",
+            NocturnalExpedition: "#114C5A",
+            OceanicNoir: "#172B36",
+        };
 
-      const DAY_COLOR = colorPalette.MysticMint;
-      const DAY_BALL_COLOR = colorPalette.NocturnalExpedition;
+        const canvas = document.getElementById("pongCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
 
-      const NIGHT_COLOR = colorPalette.NocturnalExpedition;
-      const NIGHT_BALL_COLOR = colorPalette.MysticMint;
+        const DAY_COLOR = colorPalette.MysticMint;
+        const DAY_BALL_COLOR = colorPalette.NocturnalExpedition;
 
-      const SQUARE_SIZE = 25;
+        const NIGHT_COLOR = colorPalette.NocturnalExpedition;
+        const NIGHT_BALL_COLOR = colorPalette.MysticMint;
 
-      const numSquaresX = canvas.width / SQUARE_SIZE;
-      const numSquaresY = canvas.height / SQUARE_SIZE;
+        const SQUARE_SIZE = 25;
 
-      let squares = [];
+        const numSquaresX = canvas.width / SQUARE_SIZE;
+        const numSquaresY = canvas.height / SQUARE_SIZE;
 
-      for (let i = 0; i < numSquaresX; i++) {
-        squares[i] = [];
-        for (let j = 0; j < numSquaresY; j++) {
-          squares[i][j] = i < numSquaresX / 2 ? DAY_COLOR : NIGHT_COLOR;
-        }
-      }
+        let squares = [];
 
-      let x1 = canvas.width / 4;
-      let y1 = canvas.height / 2;
-      let dx1 = 14;
-      let dy1 = 14;
-
-      let x2 = (canvas.width / 4) * 3;
-      let y2 = canvas.height / 2;
-      let dx2 = -14;
-      let dy2 = -14;
-
-      let gameStarted = false;
-
-      document.getElementById("container").addEventListener("click", (event) => {
-        // Check if the click occurred inside the container
-        if (!gameStarted && event.target.id === "container") {
-          document.getElementById("startMessage").style.display = "none";
-          gameStarted = true;
-          requestAnimationFrame(draw);
-        }
-      });
-
-      function drawBall(x, y, color) {
-        ctx.beginPath();
-        ctx.arc(x, y, SQUARE_SIZE / 2, 0, Math.PI * 2, false);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.closePath();
-      }
-
-      function drawSquares() {
         for (let i = 0; i < numSquaresX; i++) {
-          for (let j = 0; j < numSquaresY; j++) {
-            ctx.fillStyle = squares[i][j];
-            ctx.fillRect(
-              i * SQUARE_SIZE,
-              j * SQUARE_SIZE,
-              SQUARE_SIZE,
-              SQUARE_SIZE
-            );
-          }
-        }
-      }
-
-      function randomNum(min, max) {
-        return Math.random() * (max - min) + min;
-      }
-
-      function updateSquareAndBounce(x, y, dx, dy, color) {
-        let updatedDx = dx;
-        let updatedDy = dy;
-
-        for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
-          let checkX = x + Math.cos(angle) * (SQUARE_SIZE / 2);
-          let checkY = y + Math.sin(angle) * (SQUARE_SIZE / 2);
-
-          let i = Math.floor(checkX / SQUARE_SIZE);
-          let j = Math.floor(checkY / SQUARE_SIZE);
-
-          if (i >= 0 && i < numSquaresX && j >= 0 && j < numSquaresY) {
-            if (squares[i][j] !== color) {
-              squares[i][j] = color;
-
-              if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
-                updatedDx = -updatedDx;
-              } else {
-                updatedDy = -updatedDy;
-              }
-
-              updatedDx += randomNum(-0.01, 0.01);
-              updatedDy += randomNum(-0.01, 0.01);
+            squares[i] = [];
+            for (let j = 0; j < numSquaresY; j++) {
+                squares[i][j] = i < numSquaresX / 2 ? DAY_COLOR : NIGHT_COLOR;
             }
-          }
         }
 
-        return { dx: updatedDx, dy: updatedDy };
-      }
+        let x1 = canvas.width / 4;
+        let y1 = canvas.height / 2;
+        let dx1 = 14;
+        let dy1 = 14;
 
-      function updateScoreElement() {
-        let dayScore = 0;
-        let nightScore = 0;
-        for (let i = 0; i < numSquaresX; i++) {
-          for (let j = 0; j < numSquaresY; j++) {
-            if (squares[i][j] === DAY_COLOR) {
-              dayScore++;
-            } else if (squares[i][j] === NIGHT_COLOR) {
-              nightScore++;
+        let x2 = (canvas.width / 4) * 3;
+        let y2 = canvas.height / 2;
+        let dx2 = -14;
+        let dy2 = -14;
+
+        let gameStarted = false;
+
+        document.getElementById("container").addEventListener("click", (event) => {
+            // Check if the click occurred inside the container
+            if (!gameStarted && event.target.id === "container") {
+                document.getElementById("startMessage").style.display = "none";
+                gameStarted = true;
+                requestAnimationFrame(draw);
             }
-          }
+        });
+
+        function drawBall(x, y, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, SQUARE_SIZE / 2, 0, Math.PI * 2, false);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
         }
 
-        scoreElement.textContent = `day ${dayScore} | night ${nightScore}`;
-      }
-
-      function checkBoundaryCollision(x, y, dx, dy) {
-        if (x + dx > canvas.width - SQUARE_SIZE / 2 || x + dx < SQUARE_SIZE / 2) {
-          dx = -dx;
+        function drawSquares() {
+            for (let i = 0; i < numSquaresX; i++) {
+                for (let j = 0; j < numSquaresY; j++) {
+                    ctx.fillStyle = squares[i][j];
+                    ctx.fillRect(
+                        i * SQUARE_SIZE,
+                        j * SQUARE_SIZE,
+                        SQUARE_SIZE,
+                        SQUARE_SIZE
+                    );
+                }
+            }
         }
-        if (y + dy > canvas.height - SQUARE_SIZE / 2 || y + dy < SQUARE_SIZE / 2) {
-          dy = -dy;
+
+        function randomNum(min, max) {
+            return Math.random() * (max - min) + min;
         }
 
-        return { dx: dx, dy: dy };
-      }
+        function updateSquareAndBounce(x, y, dx, dy, color) {
+            let updatedDx = dx;
+            let updatedDy = dy;
 
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawSquares();
+            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
+                let checkX = x + Math.cos(angle) * (SQUARE_SIZE / 2);
+                let checkY = y + Math.sin(angle) * (SQUARE_SIZE / 2);
 
-        drawBall(x1, y1, DAY_BALL_COLOR);
-        let bounce1 = updateSquareAndBounce(x1, y1, dx1, dy1, DAY_COLOR);
-        dx1 = bounce1.dx;
-        dy1 = bounce1.dy;
+                let i = Math.floor(checkX / SQUARE_SIZE);
+                let j = Math.floor(checkY / SQUARE_SIZE);
 
-        drawBall(x2, y2, NIGHT_BALL_COLOR);
-        let bounce2 = updateSquareAndBounce(x2, y2, dx2, dy2, NIGHT_COLOR);
-        dx2 = bounce2.dx;
-        dy2 = bounce2.dy;
+                if (i >= 0 && i < numSquaresX && j >= 0 && j < numSquaresY) {
+                    if (squares[i][j] !== color) {
+                        squares[i][j] = color;
 
-        updateScoreElement();
+                        if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
+                            updatedDx = -updatedDx;
+                        } else {
+                            updatedDy = -updatedDy;
+                        }
 
-        let boundary1 = checkBoundaryCollision(x1, y1, dx1, dy1);
-        dx1 = boundary1.dx;
-        dy1 = boundary1.dy;
+                        updatedDx += randomNum(-0.01, 0.01);
+                        updatedDy += randomNum(-0.01, 0.01);
+                    }
+                }
+            }
 
-        let boundary2 = checkBoundaryCollision(x2, y2, dx2, dy2);
-        dx2 = boundary2.dx;
-        dy2 = boundary2.dy;
+            return { dx: updatedDx, dy: updatedDy };
+        }
 
-        x1 += dx1;
-        y1 += dy1;
-        x2 += dx2;
-        y2 += dy2;
+        function updateScoreElement() {
+            let dayScore = 0;
+            let nightScore = 0;
+            for (let i = 0; i < numSquaresX; i++) {
+                for (let j = 0; j < numSquaresY; j++) {
+                    if (squares[i][j] === DAY_COLOR) {
+                        dayScore++;
+                    } else if (squares[i][j] === NIGHT_COLOR) {
+                        nightScore++;
+                    }
+                }
+            }
 
-        requestAnimationFrame(draw);
-      }
+            scoreElement.textContent = `day ${dayScore} | night ${nightScore}`;
+        }
 
-      // Initial display of start message
-      document.getElementById("startMessage").style.display = "block";
+        function checkBoundaryCollision(x, y, dx, dy) {
+            if (x + dx > canvas.width - SQUARE_SIZE / 2 || x + dx < SQUARE_SIZE / 2) {
+                dx = -dx;
+            }
+            if (y + dy > canvas.height - SQUARE_SIZE / 2 || y + dy < SQUARE_SIZE / 2) {
+                dy = -dy;
+            }
+
+            return { dx: dx, dy: dy };
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSquares();
+
+            drawBall(x1, y1, DAY_BALL_COLOR);
+            let bounce1 = updateSquareAndBounce(x1, y1, dx1, dy1, DAY_COLOR);
+            dx1 = bounce1.dx;
+            dy1 = bounce1.dy;
+
+            drawBall(x2, y2, NIGHT_BALL_COLOR);
+            let bounce2 = updateSquareAndBounce(x2, y2, dx2, dy2, NIGHT_COLOR);
+            dx2 = bounce2.dx;
+            dy2 = bounce2.dy;
+
+            updateScoreElement();
+
+            let boundary1 = checkBoundaryCollision(x1, y1, dx1, dy1);
+            dx1 = boundary1.dx;
+            dy1 = boundary1.dy;
+
+            let boundary2 = checkBoundaryCollision(x2, y2, dx2, dy2);
+            dx2 = boundary2.dx;
+            dy2 = boundary2.dy;
+
+            x1 += dx1;
+            y1 += dy1;
+            x2 += dx2;
+            y2 += dy2;
+
+            requestAnimationFrame(draw);
+        }
+
+        // Initial display of start message
+        document.getElementById("startMessage").style.display = "block";
     </script>
-  </body>
+</body>
+
 </html>
